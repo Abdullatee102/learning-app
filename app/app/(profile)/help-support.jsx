@@ -33,7 +33,7 @@ const HelpSupportScreen = () => {
   const router = useRouter();
 
   const handleContactEmail = () => {
-    Linking.openURL('mailto:support@learningapp.com'); // Replace with your professional email
+    Linking.openURL('mailto:elearningapp.support@gmail.com'); 
   };
 
   return (
