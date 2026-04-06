@@ -65,7 +65,7 @@ export default function SignIn() {
   // --- 3. FACEBOOK LOGIN ---
   const handleFacebookSignIn = async () => {
     try {
-      const result = await LoginManager.logInWithPermissions(["public_profile", "email"]);
+      const result = await LoginManager.logInWithPermissions(["public_profile"]);
       if (result.isCancelled) return;
 
       const tokenData = await AccessToken.getCurrentAccessToken();
@@ -80,16 +80,7 @@ export default function SignIn() {
 
   // --- 4. FORGOT PASSWORD ---
   const handleForgotPassword = async () => {
-    if (!email) {
-      Alert.alert("Email Required", "Please enter your email address to reset your password.");
-      return;
-    }
-    const result = await forgotPassword(email);
-    if (result.success) {
-      Alert.alert("Success", "Password reset link sent to your email!");
-    } else {
-      Alert.alert("Error", result.error);
-    }
+    router.replace("/(auth)/forgotPassword");
   };
 
   return (
@@ -121,6 +112,7 @@ export default function SignIn() {
                 <TextInput
                   style={styles.input}
                   placeholder="Enter your email"
+                  placeholderTextColor="#999"
                   autoCapitalize="none"
                   keyboardType="email-address"
                   value={email}
@@ -136,6 +128,7 @@ export default function SignIn() {
                   style={styles.input}
                   placeholder="Enter your password"
                   secureTextEntry={!showPassword}
+                  placeholderTextColor="#999"
                   value={password}
                   onChangeText={setPassword}
                 />
@@ -244,7 +237,7 @@ const styles = StyleSheet.create({
     marginBottom: 30 
   },
   inputGroup: { 
-    gap: 8 
+    gap: 8,
   },
   label: { 
     fontFamily: 'Roboto-Bold', 
@@ -266,7 +259,7 @@ const styles = StyleSheet.create({
     flex: 1, 
     fontFamily: 'Roboto-Regular', 
     fontSize: 14, 
-    color: "#333" 
+    color: "#000" 
   },
   forgotBtn: { 
     alignSelf: "flex-end", 
