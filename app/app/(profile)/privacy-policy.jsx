@@ -16,9 +16,9 @@ const PrivacyPolicyScreen = () => {
         <Text style={styles.sectionHeader}>Information We Collect</Text>
         <Text style={styles.body}>
           At our E-Learning Library, we value your privacy. To provide a seamless learning experience, we collect:
-          {"\n\n"}• **Account Details:** Your name and email for authentication and account management.
-          {"\n"}• **Library Progress:** We track borrowed, available, and returned books to sync your library across devices.
-          {"\n"}• **Biometric Data:** If enabled, fingerprint or face data is handled strictly by your device's secure hardware. We never see or store this data on our servers.
+          {"\n\n"}• *Account Details:* Your name and email for authentication and account management.
+          {"\n"}• *Library Progress:* We track borrowed, available, and returned books to sync your library across devices.
+          {"\n"}• *Biometric Data:* If enabled, fingerprint or face data is handled strictly by your device's secure hardware. We never see or store this data on our servers.
         </Text>
 
         <Text style={styles.sectionHeader}>How We Use Your Data</Text>

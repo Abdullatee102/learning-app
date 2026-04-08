@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import COLORS from '../../constants/colors';
+import { router } from 'expo-router';
 
 const ResetPasswordScreen = () => {
   const [newPassword, setNewPassword] = useState('');
@@ -14,6 +15,7 @@ const ResetPasswordScreen = () => {
     }
     const res = await resetPassword(newPassword);
     if (res.success) {
+      router.push("/emailSuccess");
       Alert.alert("Success", "Password updated successfully!");
     } else {
       Alert.alert("Error", res.error);
@@ -26,6 +28,7 @@ const ResetPasswordScreen = () => {
       <TextInput
         style={styles.input}
         placeholder="Enter new password"
+        placeholderTextColor="#666"
         secureTextEntry
         value={newPassword}
         onChangeText={setNewPassword}

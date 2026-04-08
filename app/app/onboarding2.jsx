@@ -73,12 +73,12 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 30,
+    paddingHorizontal: 20,
     justifyContent: 'space-between',
-    paddingBottom: 40,
+    marginBottom: 60,
   },
   imageBox: {
-    flex: 0.6,
+    flex: 0.8,
     justifyContent: 'center',
     alignItems: 'center',
   },

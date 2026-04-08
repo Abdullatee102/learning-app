@@ -38,7 +38,7 @@ const ResetPassword = () => {
             </TouchableOpacity>
 
             <View style={styles.iconContainer}>
-               <MaterialCommunityIcons name="email-send-outline" size={50} color={COLORS.PRIMARY_COLOR} />
+               <MaterialCommunityIcons name="email-sync-outline" size={50} color={COLORS.PRIMARY_COLOR} />
             </View>
 
             <View style={styles.textContainer}>

@@ -15,12 +15,8 @@ import {
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
-
-// Auth Libraries
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { LoginManager, AccessToken } from "react-native-fbsdk-next";
-
-// UI & Store
 import Button from "../components/ui/button";
 import COLORS from "../constants/colors";
 import { useAuthStore } from "../store/authStore";
@@ -34,8 +30,6 @@ export default function SignUp() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  // Store Functions
   const { register, googleLogin, facebookLogin, isLoading } = useAuthStore();
 
   const handleSignUp = async () => {

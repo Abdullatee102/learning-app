@@ -46,8 +46,8 @@ const LearningProgressScreen = () => {
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* Stats Grid */}
         <View style={styles.statsGrid}>
-          <ProgressCard title="Books Read" value="12" icon="book" color="#0EA5E9" />
-          <ProgressCard title="Hours Spent" value="45h" icon="time" color="#F59E0B" />
+          <ProgressCard title="Books Read" value="3" icon="book" color="#0EA5E9" />
+          <ProgressCard title="Hours Spent" value="16h" icon="time" color="#F59E0B" />
           <ProgressCard title="Current Streak" value="7 Days" icon="flame" color="#EF4444" />
           <ProgressCard title="Completed" value="85%" icon="checkmark-circle" color="#10B981" />
         </View>
@@ -56,18 +56,18 @@ const LearningProgressScreen = () => {
         <Text style={styles.sectionTitle}>Currently Reading</Text>
         
         <ActiveBookItem 
-          title="Clean Code: A Handbook of Agile Software Craftsmanship" 
-          author="Robert C. Martin" 
+          title="HTML" 
+          author="Tim Berners-Lee" 
           progress={65} 
         />
         <ActiveBookItem 
-          title="React Native in Action" 
-          author="Erik Hanchett" 
+          title="CSS" 
+          author="Hakon Wium Lie" 
           progress={30} 
         />
         <ActiveBookItem 
-          title="Atomic Habits" 
-          author="James Clear" 
+          title="JAVASCRIPT" 
+          author="Breidan Eich" 
           progress={90} 
         />
 

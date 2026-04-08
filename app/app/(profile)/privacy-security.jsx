@@ -6,7 +6,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as LocalAuthentication from 'expo-local-authentication';
-import SafeView from "../../components/layout/safeView";
+import { SafeAreaView } from "react-native-safe-area-context";
 import COLORS from "../../constants/colors";
 import { useAuthStore } from "../../store/authStore";
 
@@ -38,6 +38,20 @@ const PrivacySecurityScreen = () => {
   };
 
   const handleDeletePress = () => {
+    // TEMPORARY: Alert indicating no functionality yet
+    Alert.alert(
+      "Feature Unavailable",
+      "Account deletion is currently undergoing maintenance. Please contact support if you need immediate assistance.",
+      [
+        { 
+          text: "Understood", 
+          style: "cancel" 
+        }
+      ]
+    );
+
+    /* 
+    //TO RESTORE THIS LATER:
     Alert.alert(
       "Delete Account",
       "This is permanent. All your borrowed books and history will be deleted. Proceed?",
@@ -49,15 +63,15 @@ const PrivacySecurityScreen = () => {
           onPress: async () => {
             const res = await deleteAccount();
             if (res.success) {
-              Alert.alert("Account Deleted", "We're sorry to see you go.");
               router.replace("/signIn");
             } else {
-              Alert.alert("Error", res.error);
+              Alert.alert("Error", res.error || "Failed to delete account.");
             }
           }
         }
       ]
     );
+    */
   };
 
   const SecurityItem = ({ icon, title, subtitle, onPress, isSwitch, value, onValueChange, danger }) => (
@@ -86,7 +100,7 @@ const PrivacySecurityScreen = () => {
   );
 
   return (
-    <SafeView style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
@@ -102,7 +116,7 @@ const PrivacySecurityScreen = () => {
         <SecurityItem 
           icon="key-outline" 
           title="Change Password" 
-          onPress={() => router.push("/reset-password")} 
+          onPress={() => router.push("/confirmMail")} 
         />
         <SecurityItem 
           icon="finger-print-outline" 
@@ -127,7 +141,7 @@ const PrivacySecurityScreen = () => {
           onPress={handleDeletePress}
         />
       </ScrollView>
-    </SafeView>
+    </SafeAreaView>
   );
 };
 

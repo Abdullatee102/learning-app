@@ -15,13 +15,11 @@ import {
 import { router } from "expo-router";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-// Project Resources
 import Button from "../../components/ui/button";
 import COLORS from "../../constants/colors";
 import { useAuthStore } from "../../store/authStore";
 
-const confirmEmail = () => {
+const confirmMail = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -46,7 +44,7 @@ const confirmEmail = () => {
 
     const res = await resetPassword(password);
     if (res.success) {
-      router.push("/emailSuccess");
+      router.push("/mailSuccess");
     } else {
       Alert.alert("Failed", res.error || "Could not reset password.");
     }
@@ -101,7 +99,7 @@ const confirmEmail = () => {
                       onChangeText={setPassword}
                       placeholder="Min. 8 characters"
                       secureTextEntry={!showPassword}
-                      placeholderTextColor="#999"
+                      placeholderTextColor="#666"
                     />
                     <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                       <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#666" />
@@ -174,4 +172,4 @@ const styles = StyleSheet.create({
   actionBtn: { height: 56, borderRadius: 12 },
 });
 
-export default confirmEmail;
+export default confirmMail;

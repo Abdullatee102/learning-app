@@ -1,50 +1,77 @@
-# Welcome to your Expo app 👋
+**📚 E-Learning Mobile App**
+A modern mobile application built with React Native and Expo, focused on providing a seamless learning experience. This project features a full authentication flow, library management, and secure account settings integrated with Supabase.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**🚀 Features**
+Authentication: Secure sign-in and registration using Supabase Auth.
 
-## Get started
+Library Management: Real-time book tracking and borrowing logic.
 
-1. Install dependencies
+Security: * Biometric Login (FaceID/Fingerprint) integration.
 
-   ```bash
-   npm install
-   ```
+Password management.
 
-2. Start the app
+Secure Edge Functions for administrative tasks (e.g., account deletion).
 
-   ```bash
-   npx expo start
-   ```
+Theme Support: Toggle between Dark and Light modes for better accessibility.
 
-In the output, you'll find options to open the app in a
+**🛠️ Tech Stack**
+Frontend: React Native, Expo, Expo Router
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+State Management: Zustand
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Backend: Supabase (Auth, Database, Edge Functions)
 
-## Get a fresh project
+UI/UX: Replicated from professional Figma designs
 
-When you're ready, run:
+Icons: Ionicons (@expo/vector-icons)
 
-```bash
-npm run reset-project
-```
+**📦 Installation & Setup**
+Clone the repository:
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Bash
+git clone https://github.com/abdullatee102/....git
+Install dependencies:
 
-## Learn more
+Bash
+npm install
+Environment Variables:
+Create a .env file in the root directory and add your Supabase credentials:
 
-To learn more about developing your project with Expo, look at the following resources:
+Plaintext
+EXPO_PUBLIC_SUPABASE_URL=your_project_url
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+Start the development server:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Bash
+npx expo start
 
-## Join the community
 
-Join our community of developers creating universal apps.
+**🛡️ Security Note**
+This project uses Environment Variables to manage sensitive API keys. Ensure that your .env file is included in your .gitignore to prevent leaking credentials. Administrative tasks are handled via server-side Edge Functions using the service_role key to ensure user data integrity.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+**📈 Learning Journey**
+This project is part of my #100DaysOfCode challenge. I am documenting my progress daily on professional platforms:
+
+Follow my progress on LinkedIn: https://www.linkedin.com/in/abdullateef-opeyemi-8ba848287?utm_source=share_via&utm_content=profile&utm_medium=member_android
+
+Follow my updates on X: https://x.com/Abdullatee102
+
+**🆘 Support & Contact**
+If you encounter any issues or have questions regarding the development build, feel free to reach out:
+
+Developer: Popoola Abdullateef
+
+Email: abdullateefpopoola12@gmail.com
+
+GitHub Issues: Open a new issue here...
+
+Project Coordinator: *CodeAlpha*
+
+**Pro-Tip for GitHub**
+After you create this file, run:
+
+git add README.md
+
+git commit -m "docs: add comprehensive README"
+
+git push origin main

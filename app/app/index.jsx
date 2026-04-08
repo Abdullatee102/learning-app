@@ -6,8 +6,6 @@ import { useAuthStore } from '../store/authStore';
 export default function Index() {
   const router = useRouter();
   const rootNavigationState = useRootNavigationState();
-  
-  // Added hasFinishedOnboarding to make the flow smarter
   const { user, isCheckingAuth, hasFinishedOnboarding } = useAuthStore();
 
   useEffect(() => {
@@ -15,13 +13,10 @@ export default function Index() {
 
     if (isNavigationReady && !isCheckingAuth) {
       if (user) {
-        // User is logged in -> Dashboard
         router.replace('/(tabs)'); 
       } else if (!hasFinishedOnboarding) {
-        // First time user -> Onboarding
         router.replace('/onboarding');
       } else {
-        // Returning user but logged out -> Sign In
         router.replace('/signIn');
       }
     }

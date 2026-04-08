@@ -29,7 +29,6 @@ export default function OnboardingScreen() {
         animated: true 
       });
     } else {
-      // Move to the Welcome/Auth Choice screen
       router.replace("/onboarding2");
     }
   };
@@ -105,7 +104,7 @@ export default function OnboardingScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
-  slide: { flex: 1, paddingHorizontal: 20 },
+  slide: { flex: 1, paddingHorizontal: 20, justifyContent: 'center', marginTop: 40 },
   skipContainer: { height: 40, alignItems: 'flex-end', justifyContent: 'center', marginTop: 10 },
   skipText: { fontFamily: 'Roboto-Regular', fontSize: 16, color: COLORS.PRIMARY_COLOR },
   image: { width: '100%', height: width * 0.8, marginVertical: 20 },

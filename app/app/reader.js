@@ -28,14 +28,13 @@ const ReaderScreen = () => {
       try {
         setLoading(true);
 
-        // 1. Get user's saved progress - Use select().limit(1) to avoid crash if duplicate exists
         const { data: userData } = await supabase
           .from('user_books')
           .select('progress')
           .eq('user_id', user.id)
           .eq('book_id', bookId)
           .order('created_at', { ascending: false })
-          .limit(1);
+          .limit(1); //this is used to avoid borrowing a book twice
 
         if (userData && userData.length > 0) {
           setProgress(userData[0].progress);
@@ -82,7 +81,6 @@ const ReaderScreen = () => {
 
   const saveAndExit = async () => {
     try {
-      // Update ALL entries for this user/book to keep progress in sync
       await supabase
         .from('user_books')
         .update({ progress: progress })

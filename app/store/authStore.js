@@ -11,13 +11,13 @@ export const useAuthStore = create(
       isLoading: false,
       isCheckingAuth: true,
       hasFinishedOnboarding: false,
-      biometricsEnabled: false, // NEW
+      biometricsEnabled: false, 
 
       // --- ONBOARDING ---
       setHasFinishedOnboarding: (value) => set({ hasFinishedOnboarding: value }),
-      setBiometricsEnabled: (value) => set({ biometricsEnabled: value }), // NEW
+      setBiometricsEnabled: (value) => set({ biometricsEnabled: value }), 
 
-      // --- 1. STANDARD LOGIN (Email/Password) ---
+      // --- STANDARD LOGIN (Email/Password) ---
       login: async (email, password) => {
         set({ isLoading: true });
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -29,14 +29,14 @@ export const useAuthStore = create(
         return { success: true, user: data.user };
       },
 
-      // --- 2. REGISTER (Email/Password) ---
+      // --- REGISTER (Email/Password) ---
       register: async (firstName, lastName, email, password) => {
         set({ isLoading: true });
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: 'e-learning-app://auth-callback',
+            emailRedirectTo: 'e-learning-app://resetPassword',
             data: {
               first_name: firstName,
               last_name: lastName,
@@ -52,7 +52,7 @@ export const useAuthStore = create(
         return { success: true, data };
       },
 
-      // --- 3. VERIFY OTP (Email Signup) ---
+      // --- VERIFY OTP (Email Signup) ---
       verifyOTP: async (token, email) => {
         set({ isLoading: true });
         const { data, error } = await supabase.auth.verifyOtp({ email, token, type: 'signup' });
@@ -64,7 +64,7 @@ export const useAuthStore = create(
         return { success: true, user: data.user };
       },
 
-      // --- 3.1 VERIFY RESET OTP ---
+      // --- VERIFY RESET OTP ---
       verifyResetOTP: async (token, email) => {
         set({ isLoading: true });
         const { data, error } = await supabase.auth.verifyOtp({ email, token, type: 'recovery' });
@@ -76,7 +76,7 @@ export const useAuthStore = create(
         return { success: true };
       },
 
-      // --- 4. NATIVE GOOGLE LOGIN FLOW ---
+      // --- NATIVE GOOGLE LOGIN FLOW ---
       googleLogin: async (idToken) => {
         set({ isLoading: true });
         const { data, error } = await supabase.auth.signInWithIdToken({ provider: "google", token: idToken });
@@ -88,7 +88,7 @@ export const useAuthStore = create(
         return { success: true, user: data.user };
       },
 
-      // --- 5. NATIVE FACEBOOK LOGIN FLOW ---
+      // --- NATIVE FACEBOOK LOGIN FLOW ---
       facebookLogin: async (accessToken) => {
         set({ isLoading: true });
         const { data, error } = await supabase.auth.signInWithIdToken({ provider: "facebook", token: accessToken });
@@ -100,7 +100,7 @@ export const useAuthStore = create(
         return { success: true, user: data.user };
       },
 
-      // --- 6. FORGOT PASSWORD (Email Request) ---
+      // --- FORGOT PASSWORD (Email Request) ---
       forgotPassword: async (email) => {
         set({ isLoading: true });
         const { error } = await supabase.auth.resetPasswordForEmail(email);
@@ -109,14 +109,14 @@ export const useAuthStore = create(
         return { success: true };
       },
 
-      // --- 6.1 RESEND OTP ---
+      // --- RESEND OTP ---
       resendOTP: async (email) => {
         const { error } = await supabase.auth.resetPasswordForEmail(email);
         if (error) return { success: false, error: error.message };
         return { success: true };
       },
 
-      // --- 7. RESET PASSWORD / UPDATE PASSWORD ---
+      // --- RESET PASSWORD / UPDATE PASSWORD ---
       resetPassword: async (newPassword) => {
         set({ isLoading: true });
         const { error } = await supabase.auth.updateUser({ password: newPassword });
@@ -125,7 +125,7 @@ export const useAuthStore = create(
         return { success: true };
       },
 
-      // --- 7.1 UPDATE EMAIL (NEW) ---
+      // --- UPDATE EMAIL (NEW) ---
       updateEmail: async (newEmail) => {
         set({ isLoading: true });
         const { error } = await supabase.auth.updateUser({ email: newEmail });
@@ -134,7 +134,7 @@ export const useAuthStore = create(
         return { success: true };
       },
 
-      // --- 8. AUTH CHECK (App Startup) ---
+      // --- AUTH CHECK (App Startup) ---
       checkAuth: async () => {
         set({ isCheckingAuth: true });
         try {
@@ -147,7 +147,7 @@ export const useAuthStore = create(
         }
       },
 
-      // --- 9. LOGOUT ---
+      // --- LOGOUT ---
       logout: async () => {
         set({ isLoading: true });
         try {
@@ -160,29 +160,50 @@ export const useAuthStore = create(
         }
       },
 
-      // --- 10. DELETE ACCOUNT (NEW - Calling Edge Function) ---
+      // --- DELETE ACCOUNT (Calling Edge Function) ---
       deleteAccount: async () => {
         set({ isLoading: true });
         try {
-          const { data, error } = await supabase.functions.invoke('delete-user-account');
-          if (error) throw error;
-          
+          // Get the session manually
+          const { data: { session } } = await supabase.auth.getSession();
+    
+          if (!session?.access_token) {
+            throw new Error("No active session found. Please log in again.");
+          }
+
+          const { data, error } = await supabase.functions.invoke('delete-user-account', {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          });
+
+          if (error) {
+            const errorBody = await error.context?.json();
+            throw new Error(errorBody?.error || "Deletion failed on server");
+          }
+
+          // Clear local auth
           await supabase.auth.signOut();
           set({ user: null, biometricsEnabled: false, isLoading: false });
           return { success: true };
+
         } catch (error) {
           set({ isLoading: false });
+          console.error("Delete Account Error:", error.message);
           return { success: false, error: error.message };
         }
       },
 
-      // --- 11. MANUAL STATE UPDATE ---
+      // --- MANUAL STATE UPDATE ---
       setUser: (user) => set({ user, isCheckingAuth: false, isLoading: false }),
+
     }),
+
     {
       name: "auth-storage",
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({ 
+        user: state.user,
         hasFinishedOnboarding: state.hasFinishedOnboarding,
         biometricsEnabled: state.biometricsEnabled 
       }),

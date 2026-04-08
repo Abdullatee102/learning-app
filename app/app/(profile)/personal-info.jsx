@@ -18,11 +18,7 @@ import { useAuthStore } from "../../store/authStore";
 import { supabase } from "../../lib/supabase"; 
 import COLORS from "../../constants/colors";
 
-/**
- * MOVE THIS OUTSIDE THE MAIN COMPONENT
- * Defining components inside other components causes them to unmount 
- * on every state change, which is why your keyboard was closing.
- */
+
 const InputField = ({ label, value, onChangeText, placeholder, keyboardType = "default" }) => (
   <View style={styles.inputGroup}>
     <Text style={styles.label}>{label}</Text>
@@ -57,7 +53,7 @@ const PersonalInfoScreen = () => {
     try {
       setIsSaving(true);
 
-      // Update Supabase Auth Metadata
+      // Updating Supabase Auth Metadata
       const { data, error } = await supabase.auth.updateUser({
         data: { 
           first_name: firstName.trim(),
@@ -69,7 +65,7 @@ const PersonalInfoScreen = () => {
 
       if (error) throw error;
 
-      // Sync the local Zustand store with updated user data
+      // Syncing the local Zustand store with updated user data
       setUser(data.user);
       
       Alert.alert("Success", "Profile updated successfully!", [

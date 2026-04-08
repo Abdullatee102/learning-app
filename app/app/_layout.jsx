@@ -7,16 +7,16 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useAuthStore } from '../store/authStore'; 
 import { supabase } from '../lib/supabase'; 
 
-// Keep the splash screen visible while we fetch resources
+// used for Keeping the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const { user, setUser, isCheckingAuth, checkAuth } = useAuthStore(); 
   const router = useRouter(); 
   const segments = useSegments(); 
-  const url = Linking.useURL(); // Catch deep links (Magic Links)
+  const url = Linking.useURL(); // For catching deep links 
 
-  // --- 1. LOAD CUSTOM FONTS ---
+  // --- LOAD CUSTOM FONTS ---
   const [fontsLoaded, fontError] = useFonts({
     'Roboto-Regular': require('../assets/fonts/Roboto/static/Roboto_Condensed-Regular.ttf'),
     'Roboto-Bold': require('../assets/fonts/Roboto/static/Roboto_Condensed-Bold.ttf'),
@@ -25,7 +25,7 @@ export default function RootLayout() {
     'Roboto-Italic': require('../assets/fonts/Roboto/static/Roboto_Condensed-Italic.ttf'),
   });
 
-  // --- 2. CONFIGURE GOOGLE SIGNIN ---
+  // --- CONFIGURE GOOGLE SIGNIN ---
   useEffect(() => {
     GoogleSignin.configure({
       webClientId: '763401545805-4bol739bi7rtdjifc9hpdocj20qtmvt2.apps.googleusercontent.com',
@@ -34,12 +34,11 @@ export default function RootLayout() {
     });
   }, []);
 
-  // --- 3. AUTH STATE & DEEP LINK LISTENER ---
+  // --- AUTH STATE & DEEP LINK LISTENER ---
   useEffect(() => {
-    // Initial check
     checkAuth();
 
-    // Listen for Supabase Auth changes (handles login/logout)
+    // Handles the login/logout
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
@@ -59,31 +58,29 @@ export default function RootLayout() {
     };
   }, [setUser, checkAuth, url]);
 
-  // --- 4. NAVIGATION GUARDS ---
+  // --- NAVIGATION GUARDS ---
   useEffect(() => {
    if (isCheckingAuth || !fontsLoaded) return;
 
-   // 1. Define the screens that ONLY logged-out people see
-   const authGroup = ['signIn', 'signUp', 'onboarding', 'onboarding2', 'index', '(auth)']; 
+   // Define the screens that ONLY logged-out people see
+   const authGroup = ['signIn', 'signUp', 'onboarding', 'onboarding2', 'index', '(auth)'];
 
   
-   // 2. Check if the current screen is one of those
+   // To check if the current screen is one of those
    const isAuthScreen = authGroup.includes(segments[0]);
 
-   // 3. Simple Logic:
+   // Simple Logic:
    if (!user && !isAuthScreen) {
-    // If NOT logged in and trying to access a private screen -> Go to Sign In
+    // If NOT logged in and trying to access a private screen
     router.replace('/signIn');
    } else if (user && isAuthScreen) {
-    // If ALREADY logged in and trying to access auth screens -> Go to App
+    // If ALREADY logged in and trying to access auth screens
     router.replace('/(tabs)');
    }
   
-   // Notice: If you are logged in and go to 'reader' or 'personal-info', 
-   // nothing happens because they aren't in 'authGroup'. This is what we want!
   }, [user, isCheckingAuth, segments, fontsLoaded]);
 
-  // --- 5. HIDE SPLASH SCREEN ---
+  // --- HIDE SPLASH SCREEN ---
   useEffect(() => {
     if ((fontsLoaded || fontError) && !isCheckingAuth) {
       SplashScreen.hideAsync().catch((err) => {
@@ -98,7 +95,6 @@ export default function RootLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {/* Entry point */}
       <Stack.Screen name="index" />
 
       {/* Reader: Modal presentation hides bottom tabs automatically */}
@@ -121,6 +117,7 @@ export default function RootLayout() {
       {/* Grouped Routes */}
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="(profile)" />
+      <Stack.Screen name="(auth)" />
     </Stack>
   );
 }

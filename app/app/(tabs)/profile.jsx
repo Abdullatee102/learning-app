@@ -7,7 +7,7 @@ import { useAuthStore } from "../../store/authStore";
 import { supabase } from "../../lib/supabase"; 
 import COLORS from "../../constants/colors";
 import { decode } from "base64-arraybuffer"; 
-import { useRouter } from "expo-router"; // Use hook for best practice
+import { useRouter } from "expo-router"; 
 
 const ProfileScreen = () => {
   const router = useRouter();
@@ -24,7 +24,7 @@ const ProfileScreen = () => {
     return user?.user_metadata?.full_name || user?.user_metadata?.first_name || "User";
   };
 
-  // FIXED: Logic to actually clear session and redirect
+  // Logic for the clear session and redirect
   const handleLogOut = () => {
     Alert.alert("Logout", "Are you sure you want to sign out?", [
       { text: "Cancel", style: "cancel" },
@@ -32,8 +32,8 @@ const ProfileScreen = () => {
         text: "Logout", 
         style: "destructive", 
         onPress: async () => {
-          await logout(); // Clear Supabase session and Zustand state
-          router.replace('/signIn'); // Use replace to clear history
+          await logout(); 
+          router.replace('/signIn'); 
         } 
       }
     ]);
@@ -188,7 +188,6 @@ const ProfileScreen = () => {
   );
 };
 
-// FIXED: Passed the onPress prop to the TouchableOpacity
 const MenuOption = ({ icon, title, color, onPress }) => (
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
     <View style={styles.row}>
@@ -205,7 +204,7 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#fff" },
   container: { paddingBottom: 40 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 20 },
-  headerTitle: { fontSize: 28, fontFamily: "Roboto-Bold", color: "#1A1A1A" },
+  headerTitle: { fontSize: 28, fontFamily: "Roboto-Bold", color: COLORS.PRIMARY_COLOR },
   logoutCircle: { width: 45, height: 45, borderRadius: 22.5, backgroundColor: '#FFF5F5', alignItems: 'center', justifyContent: 'center' },
   profileCard: { alignItems: 'center', marginVertical: 30 },
   avatarWrapper: { width: 120, height: 120, position: 'relative' },

@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from "react-native";
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -7,6 +7,10 @@ import COLORS from "../../constants/colors";
 
 const PaymentInfoScreen = () => {
   const router = useRouter();
+
+  const handleAddNewPayment = () => {
+    Alert.alert("Coming Soon", "The feature is coming soon, work in progress.");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -36,12 +40,12 @@ const PaymentInfoScreen = () => {
             <Ionicons name="card" size={24} color={COLORS.PRIMARY_COLOR} />
             <Text style={styles.cardText}>•••• •••• •••• 4242</Text>
           </View>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleAddNewPayment}>
             <Text style={styles.editBtn}>Edit</Text>
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.addBtn}>
+        <TouchableOpacity style={styles.addBtn} onPress={handleAddNewPayment}>
           <Ionicons name="add" size={20} color={COLORS.PRIMARY_COLOR} />
           <Text style={styles.addBtnText}>Add New Payment Method</Text>
         </TouchableOpacity>
@@ -49,20 +53,8 @@ const PaymentInfoScreen = () => {
         {/* Transaction History */}
         <Text style={[styles.sectionTitle, { marginTop: 30 }]}>Recent Transactions</Text>
         
-        <View style={styles.transactionItem}>
-          <View>
-            <Text style={styles.transTitle}>Monthly Subscription</Text>
-            <Text style={styles.transDate}>April 01, 2026</Text>
-          </View>
-          <Text style={styles.transAmount}>-$9.99</Text>
-        </View>
-
-        <View style={styles.transactionItem}>
-          <View>
-            <Text style={styles.transTitle}>Late Return Fee: "Clean Code"</Text>
-            <Text style={styles.transDate}>March 25, 2026</Text>
-          </View>
-          <Text style={[styles.transAmount, { color: '#EF4444' }]}>-$2.50</Text>
+        <View style={styles.emptyTransactions}>
+          <Text style={styles.emptyText}>No transactions made yet</Text>
         </View>
       </ScrollView>
 
@@ -108,17 +100,16 @@ const styles = StyleSheet.create({
   editBtn: { color: COLORS.PRIMARY_COLOR, fontWeight: '600' },
   addBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 15, padding: 10 },
   addBtnText: { color: COLORS.PRIMARY_COLOR, fontWeight: 'bold', marginLeft: 5 },
-  transactionItem: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
+  emptyTransactions: { 
+    paddingVertical: 30, 
     alignItems: 'center', 
-    paddingVertical: 15, 
-    borderBottomWidth: 1, 
-    borderBottomColor: '#F1F5F9' 
+    justifyContent: 'center' 
   },
-  transTitle: { fontSize: 14, fontWeight: '600', color: '#334155' },
-  transDate: { fontSize: 12, color: '#94A3B8', marginTop: 2 },
-  transAmount: { fontSize: 14, fontWeight: 'bold', color: '#334155' },
+  emptyText: { 
+    fontSize: 14, 
+    color: '#94A3B8', 
+    fontStyle: 'italic' 
+  },
   footer: { padding: 20, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
   footerText: { fontSize: 12, color: '#94A3B8', marginLeft: 6 }
 });

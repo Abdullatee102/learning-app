@@ -15,12 +15,8 @@ import {
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
-
-// Auth Libraries
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { LoginManager, AccessToken } from "react-native-fbsdk-next";
-
-// Project Resources
 import Button from "../components/ui/button";
 import COLORS from "../constants/colors";
 import { useAuthStore } from "../store/authStore";
@@ -29,11 +25,9 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
-  // Pulling actions and loading state from the Store
   const { login, googleLogin, facebookLogin, forgotPassword, isLoading } = useAuthStore();
 
-  // --- 1. EMAIL/PASSWORD LOGIN ---
+  // --- EMAIL/PASSWORD LOGIN ---
   const handleSignIn = async () => {
     if (!email || !password) {
       Alert.alert("Error", "Please fill in all fields");
@@ -48,7 +42,7 @@ export default function SignIn() {
     }
   };
 
-  // --- 2. GOOGLE LOGIN ---
+  // --- GOOGLE LOGIN ---
   const handleGoogleSignIn = async () => {
     try {
       await GoogleSignin.hasPlayServices();
@@ -62,7 +56,7 @@ export default function SignIn() {
     }
   };
 
-  // --- 3. FACEBOOK LOGIN ---
+  // --- FACEBOOK LOGIN ---
   const handleFacebookSignIn = async () => {
     try {
       const result = await LoginManager.logInWithPermissions(["public_profile"]);
@@ -78,7 +72,7 @@ export default function SignIn() {
     }
   };
 
-  // --- 4. FORGOT PASSWORD ---
+  // --- FORGOT PASSWORD ---
   const handleForgotPassword = async () => {
     router.replace("/(auth)/forgotPassword");
   };

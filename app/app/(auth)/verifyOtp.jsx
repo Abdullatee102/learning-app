@@ -12,7 +12,7 @@ import {
   Alert
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter, useLocalSearchParams } from "expo-router"; // Fixed: useRouter hook
+import { useRouter, useLocalSearchParams } from "expo-router"; 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "../../store/authStore";
 import Load from "../../components/ui/load";
@@ -57,14 +57,10 @@ export default function EmailVerificationScreen() {
   const result = await verifyOTP(code, email);
   
   if (result.success) {
-    // 2. SUCCESS: Wait a tiny bit for the 'isLoading' state to propagate 
-    // and for the 'Load' component to hide before switching screens.
     setTimeout(() => {
       router.replace("/(tabs)");
     }, 100); 
   } else {
-    // 3. ERROR: The store already set isLoading to false, 
-    // so we just show the error and reset the boxes.
     setError(result.error || "Invalid verification code");
     setOtp(Array(CODE_LENGTH).fill("")); 
     inputs.current[0]?.focus();
@@ -75,14 +71,13 @@ export default function EmailVerificationScreen() {
     if (!/^\d*$/.test(text)) return;
     
     const newOtp = [...otp];
-    newOtp[index] = text.slice(-1); // Ensure only 1 char
+    newOtp[index] = text.slice(-1); 
     setOtp(newOtp);
 
     if (text && index < CODE_LENGTH - 1) {
       inputs.current[index + 1]?.focus();
     }
 
-    // Check if full
     const fullCode = newOtp.join("");
     if (fullCode.length === CODE_LENGTH) {
       handleVerify(fullCode);
