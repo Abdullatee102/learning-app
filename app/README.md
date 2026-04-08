@@ -1,7 +1,7 @@
-**📚 E-Learning Mobile App**
+**📚 E-Learning Mobile App** -
 A modern mobile application built with React Native and Expo, focused on providing a seamless learning experience. This project features a full authentication flow, library management, and secure account settings integrated with Supabase.
 
-**🚀 Features**
+**🚀 Features** -
 Authentication: Secure sign-in and registration using Supabase Auth.
 
 Library Management: Real-time book tracking and borrowing logic.
@@ -12,9 +12,7 @@ Password management.
 
 Secure Edge Functions for administrative tasks (e.g., account deletion).
 
-Theme Support: Toggle between Dark and Light modes for better accessibility.
-
-**🛠️ Tech Stack**
+**🛠️ Tech Stack** -
 Frontend: React Native, Expo, Expo Router
 
 State Management: Zustand
@@ -25,7 +23,7 @@ UI/UX: Replicated from professional Figma designs
 
 Icons: Ionicons (@expo/vector-icons)
 
-**📦 Installation & Setup**
+**📦 Installation & Setup** -
 Clone the repository:
 
 Bash
@@ -46,17 +44,17 @@ Bash
 npx expo start
 
 
-**🛡️ Security Note**
+**🛡️ Security Note** -
 This project uses Environment Variables to manage sensitive API keys. Ensure that your .env file is included in your .gitignore to prevent leaking credentials. Administrative tasks are handled via server-side Edge Functions using the service_role key to ensure user data integrity.
 
-**📈 Learning Journey**
+**📈 Learning Journey** -
 This project is part of my #100DaysOfCode challenge. I am documenting my progress daily on professional platforms:
 
 Follow my progress on LinkedIn: https://www.linkedin.com/in/abdullateef-opeyemi-8ba848287?utm_source=share_via&utm_content=profile&utm_medium=member_android
 
 Follow my updates on X: https://x.com/Abdullatee102
 
-**🆘 Support & Contact**
+**🆘 Support & Contact** -
 If you encounter any issues or have questions regarding the development build, feel free to reach out:
 
 Developer: Popoola Abdullateef
@@ -67,7 +65,7 @@ GitHub Issues: Open a new issue here...
 
 Project Coordinator: *CodeAlpha*
 
-**Pro-Tip for GitHub**
+**Pro-Tip for GitHub** -
 After you create this file, run:
 
 git add README.md
