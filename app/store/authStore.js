@@ -13,7 +13,7 @@ export const useAuthStore = create(
       hasFinishedOnboarding: false,
       biometricsEnabled: false, 
 
-      // --- ONBOARDING ---
+      // --- ONBOARDING & BIOMETRICS ---
       setHasFinishedOnboarding: (value) => set({ hasFinishedOnboarding: value }),
       setBiometricsEnabled: (value) => set({ biometricsEnabled: value }), 
 
