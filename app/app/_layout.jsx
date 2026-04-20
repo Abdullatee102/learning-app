@@ -62,14 +62,13 @@ export default function RootLayout() {
   useEffect(() => {
    if (isCheckingAuth || !fontsLoaded) return;
 
-   // Define the screens that ONLY logged-out people see
+   // the screens ONLY logged-out people see
    const authGroup = ['signIn', 'signUp', 'onboarding', 'onboarding2', 'index', '(auth)'];
 
   
    // To check if the current screen is one of those
    const isAuthScreen = authGroup.includes(segments[0]);
 
-   // Simple Logic:
    if (!user && !isAuthScreen) {
     // If NOT logged in and trying to access a private screen
     router.replace('/signIn');
@@ -97,7 +96,6 @@ export default function RootLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
 
-      {/* Reader: Modal presentation hides bottom tabs automatically */}
       <Stack.Screen 
         name="reader" 
         options={{ 
@@ -107,14 +105,10 @@ export default function RootLayout() {
           headerTitleStyle: { fontFamily: 'Roboto-Bold' }
         }} 
       />
-
-      {/* Onboarding & Auth Screens */}
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="onboarding2" />
       <Stack.Screen name="signUp" />
       <Stack.Screen name="signIn" />
-      
-      {/* Grouped Routes */}
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="(profile)" />
       <Stack.Screen name="(auth)" />

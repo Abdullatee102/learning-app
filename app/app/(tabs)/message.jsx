@@ -24,7 +24,6 @@ const MessageScreen = () => {
 
     fetchMessages();
 
-    // Subscribe to Realtime messages for this specific book
     const channel = supabase
       .channel(`chat:${bookId}`)
       .on(
@@ -51,7 +50,6 @@ const MessageScreen = () => {
     if (!error) setMessages(data);
   };
 
-  // 2. Send Message Logic
   const sendMessage = async () => {
     if (!inputText.trim()) return;
     if (!bookId || !user) {
@@ -59,22 +57,20 @@ const MessageScreen = () => {
       return;
     }
 
-    // 1. Prepare the message object
     const newMessage = {
       text: inputText.trim(),
       user_id: user.id,
       user_email: user.email,
       book_id: bookId.toString(),
-      created_at: new Date().toISOString(), // Temporary timestamp for UI
-      id: Math.random().toString(), // Temporary ID for FlatList key
+      created_at: new Date().toISOString(), 
+      id: Math.random().toString(), 
     };
 
     try {
-      // 2. OPTIMISTIC UPDATE: Add to UI immediately so it feels fast
       setMessages((prev) => [newMessage, ...prev]);
-      setInputText(""); // Clear input right away
+      setInputText(""); 
 
-      // 3. SEND TO SUPABASE
+      // THIS SENDS THE DATA TO SUPABASE
       const { error } = await supabase
         .from("messages")
         .insert([{
@@ -86,12 +82,9 @@ const MessageScreen = () => {
 
       if (error) {
         console.error("Supabase Error:", error.message);
-        // 4. ROLLBACK: Remove the message if it failed to save
         setMessages((prev) => prev.filter(msg => msg.id !== newMessage.id));
         Alert.alert("Send Failed", "Your message couldn't be saved.");
       } else {
-        // 5. REFRESH: Fetch the real data from DB to get the correct ID/Timestamp
-        // This is your safety net if Realtime is acting up!
         fetchMessages(); 
       }
     } catch (err) {

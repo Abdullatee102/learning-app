@@ -3,8 +3,6 @@ import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-// Project Resources
 import Button from "../../components/ui/button";
 import COLORS from "../../constants/colors";
 

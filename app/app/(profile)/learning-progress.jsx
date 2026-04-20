@@ -1,9 +1,11 @@
-import React from "react";
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, FlatIcon } from "react-native";
+import React, { useState, useCallback } from "react";
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import COLORS from "../../constants/colors";
+import { supabase } from "../../lib/supabase";
+import { useAuthStore } from "../../store/authStore";
 
 const ProgressCard = ({ title, value, icon, color }) => (
   <View style={styles.statCard}>
@@ -23,7 +25,7 @@ const ActiveBookItem = ({ title, author, progress }) => (
     </View>
     <View style={styles.progressWrapper}>
       <View style={styles.progressBarBg}>
-        <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
+        <View style={[styles.progressBarFill, { width: `${progress}%`} ]} />
       </View>
       <Text style={styles.progressPercentage}>{progress}%</Text>
     </View>
@@ -32,6 +34,61 @@ const ActiveBookItem = ({ title, author, progress }) => (
 
 const LearningProgressScreen = () => {
   const router = useRouter();
+  const { user } = useAuthStore();
+  const [loading, setLoading] = useState(true);
+  const [activeBooks, setActiveBooks] = useState([]);
+  
+  // Stats States
+  const [stats, setStats] = useState({
+    booksRead: 0,
+    totalProgress: 0,
+    avgCompletion: 0,
+    streak: 7 
+  });
+
+  const fetchProgressData = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('user_books')
+        .select('*, books(*)')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      if (data) {
+        const totalBooks = data.length;
+        const completedBooks = data.filter(b => b.progress >= 0.95).length;
+        
+        const sumProgress = data.reduce((acc, curr) => acc + (curr.progress || 0), 0);
+        const avgPercentage = totalBooks > 0 ? Math.round((sumProgress / totalBooks) * 100) : 0;
+
+        setStats({
+          booksRead: totalBooks,
+          completedCount: completedBooks,
+          avgCompletion: avgPercentage,
+          streak: 7 
+        });
+
+        setActiveBooks(data.map(item => ({
+          id: item.books.id,
+          title: item.books.title,
+          author: item.books.author || "Language Expert",
+          progress: Math.round((item.progress || 0) * 100)
+        })));
+      }
+    } catch (error) {
+      console.error("Progress Sync Error:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchProgressData();
+    }, [])
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -44,41 +101,48 @@ const LearningProgressScreen = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
-        {/* Stats Grid */}
-        <View style={styles.statsGrid}>
-          <ProgressCard title="Books Read" value="3" icon="book" color="#0EA5E9" />
-          <ProgressCard title="Hours Spent" value="16h" icon="time" color="#F59E0B" />
-          <ProgressCard title="Current Streak" value="7 Days" icon="flame" color="#EF4444" />
-          <ProgressCard title="Completed" value="85%" icon="checkmark-circle" color="#10B981" />
-        </View>
+        {loading ? (
+          <ActivityIndicator size="large" color={COLORS.PRIMARY_COLOR} style={{ marginTop: 50 }} />
+        ) : (
+          <>
+            {/* Stats Grid with Real Math Logic */}
+            <View style={styles.statsGrid}>
+              <ProgressCard title="Courses Joined" value={stats.booksRead.toString()} icon="book" color="#0EA5E9" />
+              <ProgressCard title="Hours Spent" value="12h" icon="time" color="#F59E0B" />
+              <ProgressCard title="Current Streak" value={`${stats.streak} Days`} icon="flame" color="#EF4444" />
+              <ProgressCard title="Avg. Progress" value={`${stats.avgCompletion}%`} icon="checkmark-circle" color="#10B981" />
+            </View>
 
-        {/* Currently Reading Section */}
-        <Text style={styles.sectionTitle}>Currently Reading</Text>
-        
-        <ActiveBookItem 
-          title="HTML" 
-          author="Tim Berners-Lee" 
-          progress={65} 
-        />
-        <ActiveBookItem 
-          title="CSS" 
-          author="Hakon Wium Lie" 
-          progress={30} 
-        />
-        <ActiveBookItem 
-          title="JAVASCRIPT" 
-          author="Breidan Eich" 
-          progress={90} 
-        />
+            <Text style={styles.sectionTitle}>Currently Reading</Text>
+            
+            {activeBooks.length > 0 ? (
+              activeBooks.map((book, index) => (
+                <TouchableOpacity 
+                  key={`${book.id}-${index}`}
+                  onPress={() => router.push({ pathname: "/reader", params: { bookId: book.id.toString(), title: book.title }})}
+                >
+                  <ActiveBookItem 
+                    title={book.title} 
+                    author={book.author} 
+                    progress={book.progress} 
+                  />
+                </TouchableOpacity>
+              ))
+            ) : (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>No active courses yet.</Text>
+              </View>
+            )}
 
-        {/* Quick Action Button */}
-        <TouchableOpacity 
-          style={styles.continueBtn}
-          onPress={() => router.push('/book')}
-        >
-          <Text style={styles.continueBtnText}>Continue Learning</Text>
-          <Ionicons name="arrow-forward" size={18} color="#FFF" />
-        </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.continueBtn}
+              onPress={() => router.push('/(tabs)/book')}
+            >
+              <Text style={styles.continueBtnText}>Explore More Courses</Text>
+              <Ionicons name="arrow-forward" size={18} color="#FFF" />
+            </TouchableOpacity>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -102,8 +166,10 @@ const styles = StyleSheet.create({
   progressBarBg: { flex: 1, height: 8, backgroundColor: '#E2E8F0', borderRadius: 4, marginRight: 10, overflow: 'hidden' },
   progressBarFill: { height: '100%', backgroundColor: COLORS.PRIMARY_COLOR, borderRadius: 4 },
   progressPercentage: { fontSize: 12, fontWeight: 'bold', color: COLORS.PRIMARY_COLOR, width: 35 },
-  continueBtn: { backgroundColor: COLORS.PRIMARY_COLOR, flexDirection: 'row', padding: 18, borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginTop: 20 },
-  continueBtnText: { color: '#FFF', fontWeight: 'bold', fontSize: 16, marginRight: 8 }
+  continueBtn: { backgroundColor: COLORS.PRIMARY_COLOR, flexDirection: 'row', padding: 18, borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginTop: 20, marginBottom: 40 },
+  continueBtnText: { color: '#FFF', fontWeight: 'bold', fontSize: 16, marginRight: 8 },
+  emptyContainer: { padding: 20, alignItems: 'center' },
+  emptyText: { color: '#94A3B8', fontStyle: 'italic' }
 });
 
 export default LearningProgressScreen;

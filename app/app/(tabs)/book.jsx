@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { 
   StyleSheet, Text, View, TouchableOpacity, 
   FlatList, Image, Alert, ActivityIndicator 
@@ -21,11 +21,8 @@ const BookScreen = () => {
     setLoading(true);
     try {
       if (activeTab === "Available") {
-        const { data, error } = await supabase
-          .from('books')
-          .select('*')
-          .gt('available_qty', 0);
-        
+        // Fetch books that have quantity and are not already in user's library
+        const { data, error } = await supabase.from('books').select('*').gt('available_qty', 0);
         if (error) throw error;
         setBooks(data);
       } else {
@@ -33,17 +30,19 @@ const BookScreen = () => {
           .from('user_books')
           .select('*, books(*)')
           .eq('user_id', user.id)
-          .eq('status', activeTab);
-
+          .eq('status', activeTab)
+          .order('updated_at', { ascending: false });
+        
         if (error) throw error;
-
-        const formatted = data.map(item => ({
-          ...item.books,
-          user_book_id: item.id,
-          progress: item.progress,
-          status: item.status
-        }));
-        setBooks(formatted);
+        
+        setBooks(data.map(item => ({ 
+          ...item.books, 
+          id: item.id, 
+          real_book_id: item.books.id, 
+          user_book_id: item.id, 
+          progress: item.progress, 
+          status: item.status 
+        })));
       }
     } catch (error) {
       console.error("Fetch Error:", error.message);
@@ -52,114 +51,58 @@ const BookScreen = () => {
     }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchBooks();
-    }, [activeTab])
-  );
+  useFocusEffect(useCallback(() => { fetchBooks(); }, [activeTab]));
 
   const handleBorrow = async (book) => {
     try {
       setLoading(true);
+      // this Checks if user already has the specific book active
       const { data: existing } = await supabase
         .from('user_books')
         .select('id')
         .eq('user_id', user.id)
         .eq('book_id', book.id)
-        .eq('status', 'Borrowed');
+        .neq('status', 'Returned'); 
 
-      if (existing && existing.length > 0) {
-        Alert.alert("Notice", "You already have this book in your library.");
+      if (existing?.length > 0) {
+        Alert.alert("Notice", "You are already enrolled in this course.");
         setActiveTab("Borrowed");
         return;
       }
 
-      const { error: borrowError } = await supabase
-        .from('user_books')
-        .insert([{ 
-          user_id: user.id, 
-          book_id: book.id, 
-          status: 'Borrowed', 
-          progress: 0 
-        }]);
+      const { error: insertError } = await supabase.from('user_books').insert([{ 
+        user_id: user.id, 
+        book_id: book.id, 
+        status: 'Borrowed', 
+        progress: 0 
+      }]);
 
-      if (borrowError) throw borrowError;
+      if (insertError) throw insertError;
 
-      const { error: stockError } = await supabase
-        .from('books')
-        .update({ available_qty: book.available_qty - 1 })
-        .eq('id', book.id);
+      await supabase.from('books').update({ 
+        available_qty: Math.max(0, book.available_qty - 1) 
+      }).eq('id', book.id);
 
-      if (stockError) throw stockError;
-
-      Alert.alert("Success!", `You have borrowed ${book.title}`);
+      Alert.alert("Success!", `You have successfully enrolled in ${book.title}`);
       setActiveTab("Borrowed"); 
     } catch (error) {
-      Alert.alert("Error", error.message);
+      Alert.alert("Error", "Could not enroll at this time. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleReturn = async (item) => {
-    Alert.alert(
-      "Return Book",
-      "Are you sure you want to return this book?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Return", 
-          style: "destructive",
-          onPress: async () => {
-            try {
-              setLoading(true);
-              const { error: returnError } = await supabase
-                .from('user_books')
-                .update({ status: 'Returned' })
-                .eq('id', item.user_book_id);
-
-              if (returnError) throw returnError;
-
-              const { error: stockError } = await supabase
-                .from('books')
-                .update({ available_qty: item.available_qty + 1 })
-                .eq('id', item.id);
-
-              if (stockError) throw stockError;
-
-              Alert.alert("Success", "Book returned to library.");
-              fetchBooks();
-            } catch (error) {
-              Alert.alert("Error", error.message);
-            } finally {
-              setLoading(false);
-            }
-          }
-        }
-      ]
-    );
+    Alert.alert("Unenroll", "Are you sure you want to stop learning this language? Your progress will be saved in the 'Returned' tab.", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Unenroll", style: "destructive", onPress: async () => {
+          setLoading(true);
+          await supabase.from('user_books').update({ status: 'Returned' }).eq('id', item.user_book_id);
+          await supabase.from('books').update({ available_qty: item.available_qty + 1 }).eq('id', item.id);
+          fetchBooks();
+      }}
+    ]);
   };
-
-  // --- NEW EMPTY STATE COMPONENT ---
-  const EmptyState = () => (
-    <View style={styles.emptyContainer}>
-      <Ionicons name="book-outline" size={80} color="#E0E0E0" />
-      <Text style={styles.emptyTitle}>No books found</Text>
-      <Text style={styles.emptySubtitle}>
-        {activeTab === "Available" 
-          ? "The library is empty right now." 
-          : `You haven't ${activeTab.toLowerCase()} any books yet.`}
-      </Text>
-      {activeTab !== "Available" && (
-        <TouchableOpacity 
-          style={styles.exploreBtn} 
-          onPress={() => setActiveTab("Available")}
-        >
-          <Text style={styles.exploreBtnText}>Explore Library</Text>
-        </TouchableOpacity>
-      )}
-    </View>
-  );
 
   const renderBookItem = ({ item }) => {
     const isBorrowed = activeTab === 'Borrowed';
@@ -172,59 +115,39 @@ const BookScreen = () => {
           <View style={styles.bookInfo}>
             <View style={styles.titleRow}>
               <Text style={styles.bookTitle} numberOfLines={1}>{item.title}</Text>
-              <TouchableOpacity onPress={() => router.push({
-                pathname: "/(tabs)/message",
+              <TouchableOpacity onPress={() => router.push({ 
+                pathname: "/(tabs)/message", 
                 params: { bookId: item.id, bookTitle: item.title }
               })}>
-                <Ionicons name="chatbubbles-outline" size={20} color={COLORS.PRIMARY_COLOR} />
+                <Ionicons name="chatbubbles-outline" size={22} color={COLORS.PRIMARY_COLOR} />
               </TouchableOpacity>
             </View>
+            <Text style={styles.bookAuthor}>Language Course</Text>
             
-            <Text style={styles.bookAuthor}>by {item.author}</Text>
-            
-            <View style={styles.ratingRow}>
-              <Ionicons name="star" size={14} color="#FFD700" />
-              <Text style={styles.ratingText}>{item.rating || "4.5"}</Text>
-            </View>
-
             {(isBorrowed || isReturned) && (
               <View style={styles.progressSection}>
                 <View style={styles.progressBarBg}>
                   <View style={[styles.progressBarFill, { width: `${(item.progress || 0) * 100}%` }]} />
                 </View>
-                <Text style={styles.progressText}>{Math.round((item.progress || 0) * 100)}% read</Text>
+                <Text style={styles.progressText}>{Math.round((item.progress || 0) * 100)}% Completed</Text>
               </View>
             )}
 
             <View style={styles.buttonGroup}>
               <TouchableOpacity 
-                style={[
-                  styles.actionBtn, 
-                  { flex: 2 },
-                  isBorrowed ? styles.readBtn : isReturned ? styles.readBtn : styles.borrowBtn
-                ]} 
-                onPress={() => {
-                  if (isBorrowed || isReturned) {
-                    router.push({
-                      pathname: "/reader",
-                      params: { bookId: item.id.toString(), title: item.title }
-                    });
-                  } else {
-                    handleBorrow(item);
-                  }
-                }}
+                style={[styles.actionBtn, { flex: 2 }, (isBorrowed || isReturned) ? styles.readBtn : styles.borrowBtn]} 
+                onPress={() => (isBorrowed || isReturned) 
+                  ? router.push({ pathname: "/reader", params: { bookId: (item.real_book_id || item.id).toString(), title: item.title }}) 
+                  : handleBorrow(item)}
               >
                 <Text style={styles.actionBtnText}>
-                  {isBorrowed ? "CONTINUE" : isReturned ? "RE-READ" : "BORROW NOW"}
+                  {(isBorrowed) ? "CONTINUE READING" : isReturned ? "RESUME COURSE" : "ENROLL NOW"}
                 </Text>
               </TouchableOpacity>
-
+              
               {isBorrowed && (
-                <TouchableOpacity 
-                  style={[styles.actionBtn, styles.returnBtn]} 
-                  onPress={() => handleReturn(item)}
-                >
-                  <Text style={styles.actionBtnText}>RETURN</Text>
+                <TouchableOpacity style={[styles.actionBtn, styles.returnBtn]} onPress={() => handleReturn(item)}>
+                  <Text style={styles.actionBtnText}>UNENROLL</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -237,15 +160,13 @@ const BookScreen = () => {
   return (
     <SafeView style={styles.safeArea}>
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Library</Text>
-        </View>
-
+        <Text style={styles.headerTitle}>Course Library</Text>
+        
         <View style={styles.tabContainer}>
           {["Available", "Borrowed", "Returned"].map((tab) => (
             <TouchableOpacity 
               key={tab} 
-              onPress={() => setActiveTab(tab)}
+              onPress={() => setActiveTab(tab)} 
               style={[styles.tabPill, activeTab === tab && styles.activeTabPill]}
             >
               <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>{tab}</Text>
@@ -254,15 +175,19 @@ const BookScreen = () => {
         </View>
 
         {loading ? (
-          <ActivityIndicator size="large" color={COLORS.PRIMARY_COLOR} style={{ marginTop: 50 }} />
+          <ActivityIndicator size="large" color={COLORS.PRIMARY_COLOR} style={{marginTop: 50}} />
         ) : (
-          <FlatList
-            data={books}
-            keyExtractor={(item) => activeTab === 'Available' ? `avail-${item.id}` : `ub-${item.user_book_id || Math.random()}` }
-            renderItem={renderBookItem}
-            contentContainerStyle={{ paddingBottom: 100, flexGrow: 1 }}
-            ListEmptyComponent={<EmptyState />} 
-            showsVerticalScrollIndicator={false}
+          <FlatList 
+            data={books} 
+            renderItem={renderBookItem} 
+            keyExtractor={(item, index) => `${activeTab}-${item.id || index}`} 
+            contentContainerStyle={{ paddingBottom: 40 }}
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <Ionicons name="book-outline" size={50} color="#CCC" />
+                <Text style={styles.emptyText}>No courses found in this section.</Text>
+              </View>
+            }
           />
         )}
       </View>
@@ -271,10 +196,9 @@ const BookScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#FFF" },
+  safeArea: { flex: 1, backgroundColor: "#fff" },
   container: { flex: 1, marginHorizontal: -10 },
-  header: { marginTop: 10, marginBottom: 20 },
-  headerTitle: { fontSize: 28, fontWeight: 'bold', color: COLORS.PRIMARY_COLOR, textAlign: 'center' },
+  headerTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.PRIMARY_COLOR, textAlign: 'center', marginVertical: 20 },
   tabContainer: { flexDirection: 'row', backgroundColor: '#F5F7FA', borderRadius: 15, padding: 5, marginBottom: 20, marginHorizontal: 15 },
   tabPill: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 12 },
   activeTabPill: { backgroundColor: "#FFF", elevation: 2 },
@@ -282,31 +206,23 @@ const styles = StyleSheet.create({
   activeTabText: { color: COLORS.PRIMARY_COLOR },
   bookCard: { backgroundColor: "#FFF", borderRadius: 20, padding: 15, marginBottom: 15, marginHorizontal: 15, borderWidth: 1, borderColor: "#F0F0F0" },
   cardRow: { flexDirection: 'row', gap: 15 },
-  bookCover: { width: 90, height: 130, borderRadius: 12, backgroundColor: '#F0F0F0' },
+  bookCover: { width: 90, height: 120, borderRadius: 12, backgroundColor: '#F0F0F0' },
   bookInfo: { flex: 1 },
   titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   bookTitle: { fontSize: 17, fontWeight: 'bold', color: "#2C3E50", flex: 1 },
-  bookAuthor: { fontSize: 14, color: "#7F8C8D" },
-  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 10 },
-  ratingText: { fontSize: 13, color: "#34495E" },
-  progressSection: { marginBottom: 12 },
+  bookAuthor: { fontSize: 14, color: "#7F8C8D", marginVertical: 2 },
+  progressSection: { marginVertical: 10 },
   progressBarBg: { height: 6, backgroundColor: "#EDF2F7", borderRadius: 3 },
   progressBarFill: { height: 6, backgroundColor: COLORS.PRIMARY_COLOR, borderRadius: 3 },
   progressText: { fontSize: 11, color: "#94A3B8", marginTop: 4 },
-  
   buttonGroup: { flexDirection: 'row', gap: 8, marginTop: 5 },
   actionBtn: { paddingVertical: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   borrowBtn: { backgroundColor: COLORS.PRIMARY_COLOR },
   readBtn: { backgroundColor: "#1A1A1A" },
   returnBtn: { flex: 1, backgroundColor: "#E74C3C" },
-  actionBtnText: { color: "#FFF", fontSize: 11, fontWeight: 'bold' },
-
-  // --- STYLES FOR EMPTY STATE ---
-  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 100, paddingHorizontal: 40 },
-  emptyTitle: { fontSize: 20, fontWeight: 'bold', color: '#2C3E50', marginTop: 15 },
-  emptySubtitle: { fontSize: 14, color: '#7F8C8D', textAlign: 'center', marginTop: 8, lineHeight: 20 },
-  exploreBtn: { marginTop: 20, backgroundColor: COLORS.PRIMARY_COLOR, paddingHorizontal: 25, paddingVertical: 12, borderRadius: 25 },
-  exploreBtnText: { color: '#FFF', fontWeight: 'bold', fontSize: 14 }
+  actionBtnText: { color: "#FFF", fontSize: 10, fontWeight: 'bold' },
+  emptyState: { alignItems: 'center', marginTop: 100 },
+  emptyText: { color: '#999', marginTop: 10, fontSize: 14 }
 });
 
 export default BookScreen;

@@ -16,8 +16,6 @@ import {
 import { router } from "expo-router";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-// Project Resources
 import Button from "../../components/ui/button";
 import COLORS from "../../constants/colors";
 import { useAuthStore } from "../../store/authStore";

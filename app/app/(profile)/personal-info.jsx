@@ -38,7 +38,6 @@ const PersonalInfoScreen = () => {
   const router = useRouter();
   const { user, setUser } = useAuthStore();
   
-  // Initialize state from existing metadata
   const [firstName, setFirstName] = useState(user?.user_metadata?.first_name || "");
   const [lastName, setLastName] = useState(user?.user_metadata?.last_name || "");
   const [phone, setPhone] = useState(user?.user_metadata?.phone_number || "");

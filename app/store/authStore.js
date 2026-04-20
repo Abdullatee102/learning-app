@@ -17,7 +17,7 @@ export const useAuthStore = create(
       setHasFinishedOnboarding: (value) => set({ hasFinishedOnboarding: value }),
       setBiometricsEnabled: (value) => set({ biometricsEnabled: value }), 
 
-      // --- STANDARD LOGIN (Email/Password) ---
+      // --- STANDARD LOGIN (for Email/Password) ---
       login: async (email, password) => {
         set({ isLoading: true });
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -29,7 +29,7 @@ export const useAuthStore = create(
         return { success: true, user: data.user };
       },
 
-      // --- REGISTER (Email/Password) ---
+      // --- REGISTER (for Email/Password) ---
       register: async (firstName, lastName, email, password) => {
         set({ isLoading: true });
         const { data, error } = await supabase.auth.signUp({
@@ -125,7 +125,7 @@ export const useAuthStore = create(
         return { success: true };
       },
 
-      // --- UPDATE EMAIL (NEW) ---
+      // --- UPDATE EMAIL ---
       updateEmail: async (newEmail) => {
         set({ isLoading: true });
         const { error } = await supabase.auth.updateUser({ email: newEmail });
@@ -160,7 +160,7 @@ export const useAuthStore = create(
         }
       },
 
-      // --- DELETE ACCOUNT (Calling Edge Function) ---
+      // --- DELETE ACCOUNT ---
       deleteAccount: async () => {
         set({ isLoading: true });
         try {

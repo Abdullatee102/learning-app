@@ -38,7 +38,6 @@ const PrivacySecurityScreen = () => {
   };
 
   const handleDeletePress = () => {
-    // TEMPORARY: Alert indicating no functionality yet
     Alert.alert(
       "Feature Unavailable",
       "Account deletion is currently undergoing maintenance. Please contact support if you need immediate assistance.",

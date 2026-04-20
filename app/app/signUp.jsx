@@ -246,7 +246,6 @@ const SocialButton = ({ icon, text, onPress, color, isFontAwesome, isImage }) =>
   </TouchableOpacity>
 );
 
-// --- Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
